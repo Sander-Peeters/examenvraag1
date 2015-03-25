@@ -6,6 +6,9 @@ import java.util.*;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
 import javax.xml.bind.*;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.persistence.jaxb.UnmarshallerProperties;
+
 
 @RequestScoped
 @Path("/products")
@@ -13,13 +16,24 @@ public class ProductResource {
 	
 	@GET
 	@Produces({"text/html"})
+	@Consumes("application/json")
 	public String getProductsHTML() {
 		String htmlString = "<html><body>";
 		try {
-			JAXBContext jaxbContext1 = JAXBContext.newInstance(ProductsJSON.class);
-			Unmarshaller jaxbUnmarshaller = jaxbContext1.createUnmarshaller();
-			File JSONfile = new File("/Users/Sander Peeters/Desktop/Product.json");
-			ProductsJSON productsJSON = (ProductsJSON)jaxbUnmarshaller.unmarshal(JSONfile);
+			AXBContext jc = JAXBContext.newInstance(Product.class);
+			        // Create the Unmarshaller Object using the JaxB Context
+			        Unmarshaller unmarshaller = jc.createUnmarshaller();
+			        // Set the Unmarshaller media type to JSON or XML
+			        unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE,
+			                "application/json");
+			        // Set it to true if you need to include the JSON root element in the
+			        // JSON input
+			        unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true)
+			        // Create the StreamSource by creating StringReader using the JSON input
+			        File JSONfile = new File("/Users/Sander Peeters/Desktop/Product.json");
+			        Employee employee = unmarshaller.unmarshal(JSONfile, Employee.class)
+			                .getValue();
+
 			ArrayList<Product> listOfProducts = productsJSON.getProducts();
 			
 			for(Product product : listOfProducts) {
