@@ -6,10 +6,17 @@ import java.util.*;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
 import javax.xml.bind.*;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.persistence.jaxb.UnmarshallerProperties;
-
-
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+ 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
+ 
+ 
 @RequestScoped
 @Path("/products")
 public class ProductResource {
@@ -20,23 +27,31 @@ public class ProductResource {
 	public String getProductsHTML() {
 		String htmlString = "<html><body>";
 		try {
-			AXBContext jc = JAXBContext.newInstance(Product.class);
-			        // Create the Unmarshaller Object using the JaxB Context
-			        Unmarshaller unmarshaller = jc.createUnmarshaller();
-			        // Set the Unmarshaller media type to JSON or XML
-			        unmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE,
-			                "application/json");
-			        // Set it to true if you need to include the JSON root element in the
-			        // JSON input
-			        unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, true)
-			        // Create the StreamSource by creating StringReader using the JSON input
-			        File JSONfile = new File("/Users/Sander Peeters/Desktop/Product.json");
-			        Employee employee = unmarshaller.unmarshal(JSONfile, Employee.class)
-			                .getValue();
+			File JSONfile = new File("/Users/Sander Peeters/Desktop/Product.json");
+			InputStream fis = new FileInputStream(JSONfile);
+	         
+	        //create JsonReader object
+	        JsonReader jsonReader = Json.createReader(fis);
+	         
+	        //get JsonObject from JsonReader
+	        JsonObject jsonObject = jsonReader.readObject();
+	         
+	        //we can close IO resource and JsonReader now
+	        jsonReader.close();
+	        fis.close();
+	         
+	        //Retrieve data from JsonObject and create Product bean
+	        Product product = new Product();
+	         
+	        product.setId(jsonObject.getInt("id"));
+	        product.setName(jsonObject.getString("name"));
+	        product.setBrand(jsonObject.getString("brand"));
+	        product.setDescription(jsonObject.getString("description"));
+	        product.setPrice(jsonObject.getDouble("price"));
 
-			ArrayList<Product> listOfProducts = productsJSON.getProducts();
+			ArrayList<Product> listOfProducts = jsonObject.getProducts();
 			
-			for(Product product : listOfProducts) {
+			for(Product productAfdruk : listOfProducts) {
 				htmlString += "<b>Name : " + product.getName() + "</b><br>";
 				htmlString += "Id : " + product.getId() + "<br>";
 				htmlString += "Brand : " + product.getBrand() + "<br>";
@@ -56,13 +71,31 @@ public class ProductResource {
 	public String getProductsJSON() {
 		String jsonString = "{\"products\" : [";
 		try {
-			JAXBContext jaxbContext1 = JAXBContext.newInstance(ProductsJSON.class);
-			Unmarshaller jaxbUnmarshaller = jaxbContext1.createUnmarshaller();
 			File JSONfile = new File("/Users/Sander Peeters/Desktop/Product.json");
-			ProductsJSON productsJSON = (ProductsJSON)jaxbUnmarshaller.unmarshal(JSONfile);
-			ArrayList<Product> listOfProducts = productsJSON.getProducts();
+			InputStream fis = new FileInputStream(JSONfile);
+	         
+	        //create JsonReader object
+	        JsonReader jsonReader = Json.createReader(fis);
+	         
+	        //get JsonObject from JsonReader
+	        JsonObject jsonObject = jsonReader.readObject();
+	         
+	        //we can close IO resource and JsonReader now
+	        jsonReader.close();
+	        fis.close();
+	         
+	        //Retrieve data from JsonObject and create Product bean
+	        Product product = new Product();
+	         
+	        product.setId(jsonObject.getInt("id"));
+	        product.setName(jsonObject.getString("name"));
+	        product.setBrand(jsonObject.getString("brand"));
+	        product.setDescription(jsonObject.getString("description"));
+	        product.setPrice(jsonObject.getDouble("price"));
+
+			ArrayList<Product> listOfProducts = jsonObject.getProducts();
 			
-			for(Product product : listOfProducts) {
+			for(Product productAfdruk : listOfProducts) {
 				jsonString += "{\"name\" : \"" + product.getName() + "\",";
 				jsonString += "\"id\" : " + product.getId() + ",";
 				jsonString += "\"brand\" : \"" + product.getBrand() + "\",";
@@ -79,12 +112,12 @@ public class ProductResource {
 	}
 	
 	@GET
-	@Produces({"text/xml"})
-	public String getProductsXML() {
+	@Produces({"application/json"})
+	public String getProductsJSON() {
 		String content = "";
-		File XMLfile = new File("/Users/Sander Peeters/Desktop/Product.json");
+		File JSONfile = new File("/Users/Sander Peeters/Desktop/Product.json");
 		try {
-			content = new Scanner(XMLfile).useDelimiter("\\Z").next(); 	//inlezen van xml en inhoud teruggeven.
+			content = new Scanner(JSONfile).useDelimiter("\\Z").next(); 	//inlezen van json en inhoud teruggeven.
 		} 
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -99,16 +132,35 @@ public class ProductResource {
 		String jsonString = "";
 		try {
 			// get all products (We lezen alle producten in)
-			JAXBContext jaxbContext1 = JAXBContext.newInstance(ProductsJSON.class);
-			Unmarshaller jaxbUnmarshaller = jaxbContext1.createUnmarshaller();
-			File XMLfile = new File("/Users/Sander Peeters/Desktop/Product.json");
-			ProductsJSON productsXML = (ProductsJSON)jaxbUnmarshaller.unmarshal(XMLfile);
-			ArrayList<Product> listOfProducts = productsXML.getProducts();
+			File JSONfile = new File("/Users/Sander Peeters/Desktop/Product.json");
+			InputStream fis = new FileInputStream(JSONfile);
+	         
+	        //create JsonReader object
+	        JsonReader jsonReader = Json.createReader(fis);
+	         
+	        //get JsonObject from JsonReader
+	        JsonObject jsonObject = jsonReader.readObject();
+	         
+	        //we can close IO resource and JsonReader now
+	        jsonReader.close();
+	        fis.close();
+	         
+	        //Retrieve data from JsonObject and create Product bean
+	        Product product = new Product();
+	         
+	        product.setId(jsonObject.getInt("id"));
+	        product.setName(jsonObject.getString("name"));
+	        product.setBrand(jsonObject.getString("brand"));
+	        product.setDescription(jsonObject.getString("description"));
+	        product.setPrice(jsonObject.getDouble("price"));
+
+			ArrayList<Product> listOfProducts = jsonObject.getProducts();
+			
 			
 			// look for the product, using the shortname
-			for(Product product : listOfProducts) {
+			for(Product productAfdruk : listOfProducts) {
 				if(name.equalsIgnoreCase(product.getName())) {
-					jsonString += "{\"shortname\" : \"" + product.getName() + "\",";
+					jsonString += "{\"name\" : \"" + product.getName() + "\",";
 					jsonString += "\"id\" : " + product.getId() + ",";
 					jsonString += "\"brand\" : \"" + product.getBrand() + "\",";
 					jsonString += "\"description\" : \"" + product.getDescription() + "\",";
@@ -129,14 +181,32 @@ public class ProductResource {
 		String xmlString = "";
 		try {
 			// get all products (We lezen alle producten in)
-			JAXBContext jaxbContext1 = JAXBContext.newInstance(ProductsJSON.class);
-			Unmarshaller jaxbUnmarshaller = jaxbContext1.createUnmarshaller();
-			File XMLfile = new File("/Users/Sander Peeters/Desktop/Product.json");
-			ProductsJSON productsXML = (ProductsJSON)jaxbUnmarshaller.unmarshal(XMLfile);
-			ArrayList<Product> listOfProducts = productsXML.getProducts();
+			File JSONfile = new File("/Users/Sander Peeters/Desktop/Product.json");
+			InputStream fis = new FileInputStream(JSONfile);
+	         
+	        //create JsonReader object
+	        JsonReader jsonReader = Json.createReader(fis);
+	         
+	        //get JsonObject from JsonReader
+	        JsonObject jsonObject = jsonReader.readObject();
+	         
+	        //we can close IO resource and JsonReader now
+	        jsonReader.close();
+	        fis.close();
+	         
+	        //Retrieve data from JsonObject and create Product bean
+	        Product product = new Product();
+	         
+	        product.setId(jsonObject.getInt("id"));
+	        product.setName(jsonObject.getString("name"));
+	        product.setBrand(jsonObject.getString("brand"));
+	        product.setDescription(jsonObject.getString("description"));
+	        product.setPrice(jsonObject.getDouble("price"));
+
+			ArrayList<Product> listOfProducts = jsonObject.getProducts();
 			
 			// look for the product, using the shortname
-			for(Product product : listOfProducts) {
+			for(Product productAfdruk : listOfProducts) {
 				if(name.equalsIgnoreCase(product.getName())) {
 					JAXBContext jaxbContext2 = JAXBContext.newInstance(Product.class);
 					Marshaller jaxbMarshaller = jaxbContext2.createMarshaller();
@@ -157,26 +227,38 @@ public class ProductResource {
 	@Consumes({"text/xml"})
 	public void processFromXML(String productXML) {
 		
-		/* newProductXML should look like this :
-		 *  
-		 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-		 <product>
-        	<brand>BRAND</brand>
-        	<description>DESCRIPTION</description>
-        	<id>123456</id>
-        	<price>20.0</price>
-        	<shortname>SHORTNAME</shortname>
-        	<sku>SKU</sku>
-		 </product>
-		 */
-		
 		try {
 			// get all products
-			JAXBContext jaxbContext1 = JAXBContext.newInstance(ProductsJSON.class);
-			Unmarshaller jaxbUnmarshaller1 = jaxbContext1.createUnmarshaller();
-			File XMLfile = new File("/Users/Sander Peeters/Desktop/Product.json");
-			ProductsJSON productsXML = (ProductsJSON)jaxbUnmarshaller1.unmarshal(XMLfile);
-			ArrayList<Product> listOfProducts = productsXML.getProducts();
+			File JSONfile = new File("/Users/Sander Peeters/Desktop/Product.json");
+			InputStream fis = new FileInputStream(JSONfile);
+	         
+	        //create JsonReader object
+	        JsonReader jsonReader = Json.createReader(fis);
+	         
+	        //get JsonObject from JsonReader
+	        JsonObject jsonObject = jsonReader.readObject();
+	         
+	        //we can close IO resource and JsonReader now
+	        jsonReader.close();
+	        fis.close();
+	        
+	        //Retrieve data from JsonObject and create Product bean
+	        Product product = new Product();
+	         
+	        product.setId(jsonObject.getInt("id"));
+	        product.setName(jsonObject.getString("name"));
+	        product.setBrand(jsonObject.getString("brand"));
+	        product.setDescription(jsonObject.getString("description"));
+	        product.setPrice(jsonObject.getDouble("price"));
+
+			ArrayList<Product> listOfProducts = jsonObject.getProducts();
+	        
+	        JsonArray jsonArray = jsonObject.getJsonArray("products");
+	        long[] products = new long[jsonArray.size()];
+	        int index = 0;
+	        for(JsonValue value : jsonArray){
+	            products[index++] = Long.parseLong(value.toString());
+	        }
 			
 			// unmarshal new product (We gaan in de XML een product unmarshallen)
 			JAXBContext jaxbContext2 = JAXBContext.newInstance(Product.class);
@@ -187,12 +269,12 @@ public class ProductResource {
 			// add product to existing product list 
 			// and update list of products in  productsXML
 			listOfProducts.add(newProduct);
-			productsXML.setProducts(listOfProducts);
+			jsonObject.setProducts(listOfProducts);
 			
 			// marshal the updated productsXML object (Marshallen en terug naar schijf wegschrijven/naar XML).
 			Marshaller jaxbMarshaller = jaxbContext1.createMarshaller();
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			jaxbMarshaller.marshal(productsXML, XMLfile);
+			jaxbMarshaller.marshal(jsonObject, XMLfile);
 		} 
 		catch (JAXBException e) {
 		   e.printStackTrace();
